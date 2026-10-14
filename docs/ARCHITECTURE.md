@@ -103,6 +103,7 @@ teaching-aide-Aristotre-4-all/
 │   ├── aristote/
 │   │   ├── __init__.py
 │   │   ├── main.py               # App FastAPI, montage du frontend, cycle de vie
+│   │   ├── cli.py                # Diagnostic matériel : aristote diag printer|camera|buttons|mic
 │   │   ├── config.py             # Chargement TOML + variables d'environnement (pydantic-settings)
 │   │   ├── events.py             # Bus d'événements interne → WebSocket
 │   │   ├── api/
