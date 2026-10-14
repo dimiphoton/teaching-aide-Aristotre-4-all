@@ -24,7 +24,7 @@
 | 8 | Boutons élèves | Boutons arcade **30 mm à LED 5 V**, 4 couleurs distinctes (rouge, bleu, vert, jaune) | Contact NO momentané, LED 5 V avec résistance intégrée, cosses 4,8 mm ou 2,8 mm | 4 | 12 € |
 | 9 | Bouton SCAN | Bouton arcade 30 mm à LED 5 V, **blanc** | Idem | 1 | 3 € |
 | 10 | Pilote LED | **ULN2803A** (DIP-18) + support | 8 canaux Darlington, commande 3,3 V → LED 5 V | 1 | 2 € |
-| 11 | Carte d'interface | Plaque de prototypage format HAT pour Pi (avec connecteur 2×20 traversant) | Doit laisser passer le câble caméra | 1 | 6 € |
+| 11 | Carte d'interface | Plaque à pastilles 50 × 70 mm + support DIP-18 + borniers à vis | Porte l'ULN2803A ; se visse au fond du plateau (le M.2 HAT+ fournit le connecteur GPIO traversant) | 1 | 4 € |
 | 12 | Câblage boutons | Câbles Dupont F-F 20 cm + cosses femelles isolées (taille des boutons) | — | 1 lot | 6 € |
 
 ## 3. Capteurs
@@ -32,8 +32,9 @@
 | # | Composant | Référence recommandée | Caractéristiques impératives | Qté | Prix ≈ |
 |---|---|---|---|---|---|
 | 13 | Caméra | **Raspberry Pi Camera Module 3** (standard, **pas** la version *Wide*) | 12 MP IMX708, **autofocus** (indispensable pour lire une copie à 25–35 cm), champ standard = moins de distorsion | 1 | 27 € |
-| 14 | Nappe caméra | Nappe **Raspberry Pi 5** 22 broches → 15 broches, **300 mm** | Le Pi 5 utilise le petit connecteur 22 broches | 1 | 3 € |
+| 14 | Nappe caméra | Nappe **Raspberry Pi 5** 22 broches → 15 broches, **1 m** (ex. Arducam) | Le Pi 5 utilise le petit connecteur 22 broches ; la nappe passe dans le mât (objectif à 30 cm de la table) | 1 | 6 € |
 | 15 | Micro | Micro **USB à col de cygne, cardioïde** (plug-and-play, UAC) | Directionnel pour limiter le bruit de la classe ; pas de pilote | 1 | 15–25 € |
+| 15b | Prise du micro | Rallonge **USB-A mâle → femelle à visser** (« panel mount »), 30 cm | Le micro se branche sur le dessus du plateau | 1 | 4 € |
 | 16 | *Optionnel* Haut-parleur | Mini enceinte alimentée USB avec entrée USB-audio | Pour la lecture vocale (fonction future) | (1) | (12 €) |
 
 ## 4. Impression
@@ -49,8 +50,8 @@
 
 | # | Composant | Référence recommandée | Caractéristiques impératives | Qté | Prix ≈ |
 |---|---|---|---|---|---|
-| 21 | Filament | **PETG** 1,75 mm | Plus robuste et moins cassant que le PLA en usage scolaire ; ≈ 700 g par kiosque | 1 kg | 20 € |
-| 22 | Inserts | Inserts laiton à chaud M3 × 5 mm (lot de 50) + vis M3 × 8/12 mm | — | 1 lot | 8 € |
+| 21 | Filament | **PETG** 1,75 mm (+ un peu de PETG noir pour les coins de scan) | Plus robuste et moins cassant que le PLA en usage scolaire ; ≈ 700 g par kiosque. Pièces : `hardware/enclosure/` | 1 kg | 20 € |
+| 22 | Inserts et visserie | Inserts laiton à chaud M3 × 5,7 (lot de 50) ; vis M3 × 8, × 10, × 12, × 35 ; écrous M3 ; vis M2 × 6 | Quantités : `hardware/enclosure/README.md` | 1 lot | 10 € |
 | 23 | Visserie Pi | Entretoises M2,5 × 11 mm + vis M2,5 (pour M.2 HAT+) | Souvent incluses dans le kit SSD | 1 lot | 3 € |
 | 24 | Patins | Patins antidérapants silicone | Stabilité sur la table | 4 | 2 € |
 | 25 | Multiprise | Multiprise 3 prises avec interrupteur, câble 1,5 m | Un seul câble secteur sort du kiosque | 1 | 10 € |
@@ -67,15 +68,15 @@
 | Poste | Coût ≈ |
 |---|---|
 | Calcul et stockage | 149 € |
-| Interface élève | 114–134 € |
-| Capteurs | 45–55 € |
+| Interface élève | 112–132 € |
+| Capteurs | 52–62 € |
 | Impression | 74–84 € |
-| Mécanique et alimentation | 43 € |
+| Mécanique et alimentation | 45 € |
 | Accessoires passifs | 13–17 € |
-| **Total par kiosque** | **≈ 440–480 €** |
-| **Classe de 30 élèves (8 kiosques)** | **≈ 3 500–3 850 €** |
+| **Total par kiosque** | **≈ 445–490 €** |
+| **Classe de 30 élèves (8 kiosques)** | **≈ 3 550–3 900 €** |
 
-Variante économique (microSD au lieu du SSD, écran générique) : ≈ 390 € par kiosque.
+Variante économique (microSD au lieu du SSD, écran générique) : ≈ 395 € par kiosque.
 
 ## 8. Équipement de classe (optionnel)
 
@@ -85,7 +86,7 @@ Variante économique (microSD au lieu du SSD, écran générique) : ≈ 390 € 
 | Routeur dédié | Si le Wi-Fi de l'établissement isole les appareils (Syncthing passe alors par relais Internet) | Petit routeur de voyage OpenWrt (ex. GL.iNet) | 30–60 € |
 | Rouleaux de papier | Consommable annuel | ≈ 1 rouleau / kiosque / semaine | 30 € / kiosque / an |
 
-## 9. Brochage GPIO (résumé — détail dans `wiring.md`)
+## 9. Brochage GPIO (résumé — détail et schémas dans [`wiring.md`](wiring.md))
 
 | Fonction | GPIO (BCM) | Broche physique | Câblage |
 |---|---|---|---|
