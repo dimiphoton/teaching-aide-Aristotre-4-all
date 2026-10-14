@@ -8,6 +8,7 @@ impression d'exercices sur ticket thermique, et remontée automatique des donné
 > 🚧 Dépôt en cours de construction. Documents disponibles :
 > - [Architecture](docs/ARCHITECTURE.md)
 > - [Liste du matériel (BOM)](hardware/BOM.md)
+> - [Évaluation des versions](docs/EVALUATION.md)
 
 ## Licence
 

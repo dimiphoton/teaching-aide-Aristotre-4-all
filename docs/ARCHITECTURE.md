@@ -83,6 +83,7 @@ teaching-aide-Aristotre-4-all/
 │   ├── INSTALL.md                # Installation logicielle d'un kiosque
 │   ├── TEACHER_GUIDE.md          # Guide professeur : Obsidian, Syncthing, prompts
 │   ├── PRIVACY.md                # RGPD, pseudonymisation, choix OCR/LLM, rétention
+│   ├── EVALUATION.md             # Critères et protocole de comparaison des versions
 │   └── DATA_FORMAT.md            # Spécification des fichiers Markdown produits
 │
 ├── hardware/
@@ -133,8 +134,9 @@ teaching-aide-Aristotre-4-all/
 │   │   │   ├── state.py          # Machine à états par item (tentatives, verrou)
 │   │   │   ├── agent.py          # Orchestration : évaluer → décider → formuler
 │   │   │   ├── misconceptions.py # Catalogue et normalisation des étiquettes d'erreurs
-│   │   │   └── curriculum/       # Notions, prérequis (YAML) éditables par le prof
-│   │   │       └── exemple_maths_5e.yaml
+│   │   │   └── curriculum/       # Cours génériques (toutes matières) éditables par le prof
+│   │   │       ├── schema.py     # Notions, prérequis, items, type_reponse, misconceptions
+│   │   │       └── loader.py
 │   │   ├── storage/
 │   │   │   ├── markdown_store.py # Écriture atomique des sessions/items en Markdown
 │   │   │   └── students.py       # Profils pseudonymisés par kiosque
@@ -181,6 +183,17 @@ teaching-aide-Aristotre-4-all/
 │   └── hub/                      # Optionnel : serveur Ollama de classe
 │       ├── docker-compose.yml
 │       └── README.md
+│
+├── eval/                         # Harnais d'évaluation (voir docs/EVALUATION.md)
+│   ├── weights.toml
+│   ├── courses/demo/             # Cours de démonstration multi-matières
+│   ├── generators/               # Misconceptions, scénarios, classe synthétique
+│   ├── simulated_student.py
+│   ├── checks/                   # Vérifications déterministes (réponse, fuite, CER/WER)
+│   ├── judges/                   # Jury multi-LLM + grilles
+│   ├── bench/                    # Délais, endurance
+│   ├── run.py
+│   └── report.py
 │
 └── teacher/
     └── obsidian/
@@ -230,10 +243,17 @@ teaching-aide-Aristotre-4-all/
 Le verdict du LLM est validé par schéma (pydantic). En cas de JSON invalide : une seconde tentative, puis repli sur
 « je n'ai pas compris ta réponse, peux-tu reformuler ? » **sans** incrémenter le compteur.
 
-### 4.3 Scan d'une copie
+### 4.3 Réponse écrite (scan) ou orale (dictée)
 Bouton SCAN (ou écran) → aperçu → capture 12 MP → détection des bords et redressement (OpenCV) → OCR via le moteur
 configuré → **l'élève relit et corrige le texte reconnu à l'écran** → la réponse validée entre dans le flux 4.2.
 Par défaut, l'image est supprimée après validation (`keep_scans = false`) ; seul le texte est conservé.
+
+Réponse orale : appui sur « Dicter » → enregistrement → transcription locale (faster-whisper) → **l'élève relit et
+corrige la transcription** → même flux 4.2. Par défaut, l'audio est supprimé après validation.
+
+Avec l'option `eval_capture = true`, l'image ou l'audio est conservé avec le texte brut du moteur et le texte validé
+par l'élève, hors du coffre synchronisé : ces paires servent à évaluer les moteurs OCR et de dictée (voir
+`EVALUATION.md` § 5.3).
 
 ### 4.4 Synchronisation
 Le backend écrit dans `/var/lib/aristote/vault/<kiosk-id>/` (écriture atomique : fichier temporaire + `rename`).
