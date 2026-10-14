@@ -1,0 +1,22 @@
+[Unit]
+Description=Aristote 4 All - interface plein écran (cage + Chromium)
+After=aristote-backend.service systemd-user-sessions.service
+Wants=aristote-backend.service
+Conflicts=getty@tty1.service
+
+[Service]
+User=aristote
+PAMName=login
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 60); do curl -sf http://127.0.0.1:8000/api/state >/dev/null && exit 0; sleep 1; done; exit 0'
+ExecStart=/usr/bin/cage -d -- /usr/bin/chromium-browser --kiosk --app=http://127.0.0.1:8000 \
+  --noerrdialogs --disable-infobars --disable-pinch --overscroll-history-navigation=0 \
+  --disable-features=Translate,TouchpadOverscrollHistoryNavigation --check-for-update-interval=31536000 \
+  --password-store=basic --ozone-platform=wayland
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical.target multi-user.target

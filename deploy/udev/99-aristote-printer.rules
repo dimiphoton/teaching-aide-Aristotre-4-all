@@ -1,0 +1,4 @@
+# Adaptateur USB-TTL CP2102 de l'imprimante CSN-A2 → lien stable /dev/aristote-printer
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="aristote-printer", GROUP="dialout", MODE="0660"
+# Variante CH340 (adaptateurs bon marché)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", SYMLINK+="aristote-printer", GROUP="dialout", MODE="0660"

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+node_modules/
+frontend/dist/
+*.jpg
+*.wav
+!hardware/**/*.jpg
+.dev-data/
+eval/results/
