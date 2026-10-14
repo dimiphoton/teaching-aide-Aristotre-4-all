@@ -1,0 +1,14 @@
+# Configuration de développement : tout est simulé, les fichiers vont dans ./.dev-data
+[kiosk]
+id = "K01"
+students = ["E01", "E02", "E03", "E04"]
+
+[hardware]
+mode = "mock"
+
+[storage]
+vault_dir = ".dev-data/vault"
+eval_corpus_dir = ".dev-data/eval_corpus"
+
+[frontend]
+dist_dir = "frontend/dist"

@@ -102,9 +102,11 @@ Ces critères n'entrent pas dans le score du kiosque ; ils départagent les vers
 score = Σ (poids_bloc × note_bloc)      note_bloc ∈ [0, 100]
 ```
 
-Chaque critère est ramené sur 100 (100 = cible atteinte, décroissance linéaire jusqu'à 0 au double de l'écart
-toléré). La note d'un bloc est la moyenne de ses critères. Une version n'est comparée que si elle passe G1 à G5.
-Le rapport affiche toujours le détail par critère, pas seulement le score global.
+Chaque critère est ramené sur 100 : 100 quand la cible est atteinte, 0 à une valeur « zéro » fixée dans
+`eval/weights.toml`, linéaire entre les deux. La note d'un bloc est la moyenne de ses critères. Un critère non
+mesuré ou déclaré non fiable est exclu ; un bloc sans critère est exclu et les poids restants sont renormalisés.
+Une version n'est comparée que si elle passe G1 à G5. Le rapport affiche toujours le détail par critère, pas
+seulement le score global.
 
 ## 5. Indépendance vis-à-vis du cours
 
@@ -183,34 +185,39 @@ Il n'y a pas d'annotateur humain. La fiabilité vient donc de la redondance :
 
 ## 7. Outillage
 
+Voir `eval/README.md` pour le mode d'emploi.
+
 ```
 eval/
-├── README.md
-├── weights.toml               # Poids des blocs et cibles (modifiables)
-├── courses/demo/curriculum.yaml
+├── weights.toml               # Poids des blocs, cibles et valeurs « zéro » des critères
+├── configs/exemple.toml       # Modèle évalué, élève simulé, jury, mesures externes
+├── common.py                  # Clients LLM, enregistrement des appels, notation
 ├── generators/
-│   ├── misconceptions.py      # Catalogue de misconceptions par notion
-│   ├── scenarios.py           # Scénarios tuteur et scénarios piégés
-│   └── synthetic_class.py     # Classe synthétique de 30 élèves
-├── simulated_student.py       # Élève simulé (LLM) avec profil de misconceptions
-├── checks/
-│   ├── answer_check.py        # Vérification déterministe selon type_reponse
-│   ├── leak_detector.py       # Détection déterministe de fuite (G1)
-│   └── ocr_stt_metrics.py     # CER, WER, réponse finale exacte
+│   ├── scenarios.py           # Scénarios tuteur et scénarios piégés, générés depuis le cours
+│   ├── misconceptions.py      # Complète les catalogues de misconceptions vides
+│   └── synthetic_class.py     # Classe synthétique de 30 élèves (vérité connue)
+├── simulated_student.py       # Élève simulé (LLM ou scripté)
+├── checks/metrics.py          # CER, WER, réponse finale exacte, kappa, ARI
 ├── judges/
 │   ├── jury.py                # Jury multi-modèles + kappa
-│   └── rubrics/*.md           # Grilles fermées
+│   └── rubrics/*.md           # Grilles fermées : fuite, sécurité, socratique, indice
 ├── bench/
-│   ├── latency.py             # Délais mesurés sur kiosque réel
+│   ├── latency.py             # Délais mesurés sur kiosque
 │   └── soak.py                # Endurance 72 h
-├── run.py                     # Exécute une configuration → résultats JSON
-└── report.py                  # Compare deux résultats → rapport Markdown
+├── run.py                     # Évaluation d'une configuration → results.json + transcripts.jsonl
+├── report.py                  # Score pondéré et rapport comparatif
+├── ocr_eval.py                # OCR et dictée sur le corpus réel
+├── teacher_eval.py            # Prompts du professeur sur la classe synthétique
+└── tests/                     # Tests du harnais (hors ligne)
 ```
+
+La vérification déterministe des réponses et le détecteur de fuite sont dans le backend
+(`backend/aristote/tutor/answers.py`) : le kiosque les applique en direct, le harnais les réutilise tels quels.
 
 | Commande | Rôle | Quand |
 |---|---|---|
-| `make test` | Tests rapides avec LLM simulé (machine à états, format, impression, stockage, détecteur de fuite) | À chaque commit (intégration continue) |
-| `make eval-generate COURSE=demo` | Génère les jeux de test d'un cours | À chaque nouveau cours |
-| `make eval CONFIG=configs/x.toml` | Évaluation complète (appels LLM payants) | Avant chaque version, ou pour comparer deux options |
+| `make test` | Tests rapides avec LLM simulé (backend + harnais) | À chaque commit |
+| `make eval-offline` | Chaîne complète sans réseau : G1, G2, G4, G5 | À chaque commit touchant le tuteur |
+| `make eval CONFIG=…` | Évaluation complète (appels LLM payants) | Avant chaque version, ou pour comparer deux options |
 | `make eval-compare A=… B=…` | Rapport comparatif, gagnant par critère | Après deux évaluations |
-| `make bench` | Délais et endurance sur un kiosque physique | Changement de matériel ou version majeure |
+| `python -m eval.bench.latency` / `eval.bench.soak` | Délais et endurance sur un kiosque physique | Changement de matériel ou version majeure |

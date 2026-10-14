@@ -341,14 +341,7 @@ class TutorAgent:
                                  misconception: str | None, prerequisite: Notion | None) -> bool:
         exercise = await self._generate_exercise(notion, citem, misconception, prerequisite)
         if exercise is None:
-            source = prerequisite or notion
-            questions = [present_question(it) for it in sorted(source.items, key=lambda it: it.difficulte)
-                         if it.id != citem.id][:2]
-            if not questions:
-                questions = [f"Écris avec tes mots ce que tu sais sur : {source.titre}."]
-            exercise = RemediationExercise(titre=f"Révision : {source.titre}"[:40],
-                                           consigne="Fais ces exercices, puis montre-les à ton professeur.",
-                                           questions=questions)
+            exercise = self._fallback_exercise(citem, prerequisite or notion)
         item.remediation = f"{exercise.titre} — " + " / ".join(exercise.questions)
         if self._print_ticket is None:
             return False
@@ -361,6 +354,23 @@ class TutorAgent:
             return False
         item.printed = True
         return True
+
+    @staticmethod
+    def _fallback_exercise(citem: CurriculumItem, source: Notion) -> RemediationExercise:
+        """Ticket de repli construit avec les questions du professeur, filtrées par la garde anti-fuite.
+
+        Même une question du cours peut révéler la réponse de l'item bloqué (ex. « 1/2 = ?/4 » quand
+        la réponse bloquée est 1/2) : tout passe par `detect_leak`.
+        """
+        questions = [q for q in (present_question(it) for it in sorted(source.items, key=lambda it: it.difficulte)
+                                 if it.id != citem.id) if detect_leak(citem, q) is None][:2]
+        if not questions:
+            questions = ["Relis ta leçon, puis écris avec tes mots ce que tu as compris."]
+        title = f"Révision : {source.titre}"[:40]
+        if detect_leak(citem, title):
+            title = "Révision"
+        return RemediationExercise(titre=title, consigne="Fais ces exercices, puis montre-les à ton professeur.",
+                                   questions=questions)
 
     async def _generate_exercise(self, notion: Notion, citem: CurriculumItem, misconception: str | None,
                                  prerequisite: Notion | None) -> RemediationExercise | None:

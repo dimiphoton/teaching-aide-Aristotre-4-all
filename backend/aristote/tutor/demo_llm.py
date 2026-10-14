@@ -25,6 +25,10 @@ def _respond(messages: list[Message], json_mode: bool) -> str:
     if json_mode and "ticket de caisse" in system:
         return "{}"  # invalide : l'agent se replie sur les items du cours
     if json_mode:
+        student = system.split("<<<", 1)[-1].split(">>>", 1)[0].lower()
+        if "?" in student or any(w in student for w in ("réponse", "aide", "comprends", "robot", "jeu")):
+            return json.dumps({"nature": "demande_aide", "verdict": "faux", "misconception": None,
+                               "explication": "", "elements_justes": ""})
         return json.dumps({"nature": "reponse", "verdict": "faux", "misconception": None,
                            "explication": "Mode démonstration : pas d'analyse.", "elements_justes": ""})
     last = str(messages[-1]["content"])

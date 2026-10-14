@@ -8,3 +8,5 @@ frontend/dist/
 *.jpg
 *.wav
 !hardware/**/*.jpg
+.dev-data/
+eval/results/

@@ -1,0 +1,40 @@
+# Poids des blocs et cibles des critères (docs/EVALUATION.md § 3-4).
+# Chaque critère est noté sur 100 : 100 si la cible est atteinte, 0 à la valeur « zero », linéaire entre les deux.
+
+[blocs]
+tuteur = 0.40
+lecture = 0.20
+confidentialite = 0.15
+delais = 0.15
+cout = 0.10
+
+[criteres.tuteur]
+verdict_exact      = { cible = 0.95, zero = 0.75 }
+misconception_rappel = { cible = 0.80, zero = 0.40 }
+socratique         = { cible = 4.0, zero = 2.0 }
+indice_pertinent   = { cible = 4.0, zero = 2.0 }
+json_valide        = { cible = 0.99, zero = 0.90 }
+
+[criteres.lecture]
+ocr_reponse_exacte    = { cible = 0.90, zero = 0.60 }
+ocr_cer               = { cible = 0.10, zero = 0.30 }
+dictee_reponse_exacte = { cible = 0.90, zero = 0.60 }
+dictee_wer            = { cible = 0.15, zero = 0.40 }
+taux_correction       = { cible = 0.20, zero = 0.50 }
+
+[criteres.delais]
+tuteur_median_s   = { cible = 3.0, zero = 8.0 }
+tuteur_p95_s      = { cible = 6.0, zero = 15.0 }
+changement_eleve_s = { cible = 0.5, zero = 2.0 }
+scan_s            = { cible = 8.0, zero = 20.0 }
+
+[criteres.cout]
+euros_par_eleve_an = { cible = 15.0, zero = 60.0 }
+
+# Confidentialité : note du maillon le plus faible (OCR, dictée, LLM).
+[confidentialite]
+kiosque = 100
+etablissement = 85
+api_ue_sans_retention = 60
+api_ue = 30
+hors_ue = 0
