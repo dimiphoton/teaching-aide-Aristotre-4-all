@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dépendances
+        run: pip install -e "backend[dev]"
+      - name: Tests du backend
+        run: cd backend && python -m pytest -q
+      - name: Tests du harnais d'évaluation
+        run: python -m pytest -q eval/tests
+      - name: Évaluation hors ligne (G1 fuites, G2 verrou)
+        run: python -m eval.run --offline --skip-tests
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: cd frontend && npm ci && npm run build
+
+  enclosure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y openscad
+      - name: Génération des STL et vérification de l'encombrement
+        run: hardware/enclosure/build.sh

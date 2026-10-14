@@ -72,143 +72,75 @@
 
 ```
 teaching-aide-Aristotre-4-all/
-├── README.md                     # Présentation, montage, installation, avertissement licence
-├── LICENSE.md                    # Texte officiel PolyForm Noncommercial 1.0.0
-├── NOTICE                        # « Required Notice » (copyright)
-├── Makefile                      # make dev | make build | make test | make deploy
+├── README.md · LICENSE.md · NOTICE · Makefile
 │
 ├── docs/
-│   ├── ARCHITECTURE.md           # Ce document
-│   ├── ASSEMBLY.md               # Montage mécanique et câblage pas à pas
-│   ├── INSTALL.md                # Installation logicielle d'un kiosque
-│   ├── TEACHER_GUIDE.md          # Guide professeur : Obsidian, Syncthing, prompts
-│   ├── PRIVACY.md                # RGPD, pseudonymisation, choix OCR/LLM, rétention
-│   ├── EVALUATION.md             # Critères et protocole de comparaison des versions
-│   └── DATA_FORMAT.md            # Spécification des fichiers Markdown produits
+│   ├── ARCHITECTURE.md           # ce document
+│   ├── ASSEMBLY.md               # montage pas à pas
+│   ├── INSTALL.md                # installation logicielle et exploitation
+│   ├── TEACHER_GUIDE.md          # guide du professeur
+│   ├── PRIVACY.md                # RGPD, pseudonymisation, choix des fournisseurs
+│   ├── DATA_FORMAT.md            # format des cours (YAML) et des fichiers Markdown produits
+│   ├── EVALUATION.md             # critères et protocole de comparaison des versions
+│   └── images/                   # captures d'écran, vue du plateau
 │
 ├── hardware/
-│   ├── BOM.md                    # Liste du matériel
-│   ├── wiring.md                 # Brochage GPIO, schéma d'alimentation
-│   └── enclosure/                # Boîtier imprimé 3D (OpenSCAD paramétrique)
-│       ├── params.scad           # Cotes : écran, imprimante, boutons, agrafeuse, dévidoir
-│       ├── base.scad             # Socle (Pi, alim, imprimante, logements passifs)
-│       ├── screen_frame.scad     # Cadre écran incliné
-│       ├── camera_arm.scad       # Potence caméra au-dessus de la zone de scan
-│       ├── button_panel.scad     # Façade 5 boutons
-│       └── README.md             # Réglages d'impression (PETG, 0,2 mm, supports)
+│   ├── BOM.md                    # liste du matériel
+│   ├── wiring.md                 # câblage : GPIO, ULN2803A, imprimante, caméra
+│   └── enclosure/                # plateau modulaire OpenSCAD
+│       ├── params.scad           # toutes les cotes (composants, positions, plateau d'impression)
+│       ├── lib.scad · base.scad · modules.scad
+│       ├── parts.scad            # pièces posées à plat pour l'impression
+│       ├── assembly.scad         # vue d'ensemble
+│       ├── build.sh              # génère stl/ et vérifie l'encombrement
+│       └── stl/                  # 12 pièces prêtes à imprimer
 │
-├── backend/
-│   ├── pyproject.toml
-│   ├── config.example.toml       # Copié en /etc/aristote/config.toml
+├── backend/                      # Python 3.11, paquet « aristote »
+│   ├── pyproject.toml · config.example.toml · config.dev.toml
 │   ├── aristote/
-│   │   ├── __init__.py
-│   │   ├── main.py               # App FastAPI, montage du frontend, cycle de vie
-│   │   ├── cli.py                # Diagnostic matériel : aristote diag printer|camera|buttons|mic
-│   │   ├── config.py             # Chargement TOML + variables d'environnement (pydantic-settings)
-│   │   ├── events.py             # Bus d'événements interne → WebSocket
+│   │   ├── main.py               # application FastAPI (API, WebSocket, interface statique)
+│   │   ├── cli.py                # aristote serve | config | diag … | eval-export
+│   │   ├── config.py             # configuration TOML validée
+│   │   ├── events.py             # bus d'événements (threads matériels → asyncio)
 │   │   ├── api/
-│   │   │   ├── routes_session.py # Utilisateur actif, début/fin de session
-│   │   │   ├── routes_tutor.py   # Échanges avec le tuteur
-│   │   │   ├── routes_scan.py    # Capture + OCR
-│   │   │   ├── routes_print.py   # Impression d'exercices
-│   │   │   └── ws.py             # WebSocket (boutons, statut, progression)
-│   │   ├── hardware/
-│   │   │   ├── base.py           # Interfaces abstraites (Protocol)
-│   │   │   ├── buttons.py        # GPIO (gpiozero) | clavier HID | mock
-│   │   │   ├── leds.py           # LED des boutons (élève actif)
-│   │   │   ├── camera.py         # picamera2 | OpenCV | mock + redressement de page
-│   │   │   ├── printer_csn_a2.py # Pilote CSN-A2 (texte, gras, tailles, QR, coupe-ligne)
-│   │   │   └── microphone.py     # Enregistrement (sounddevice) | mock
-│   │   ├── ocr/
-│   │   │   ├── base.py
-│   │   │   ├── tesseract_engine.py
-│   │   │   ├── ollama_vlm_engine.py
-│   │   │   └── mistral_engine.py
-│   │   ├── stt/
-│   │   │   └── whisper_engine.py
+│   │   │   ├── context.py        # assemblage des services d'un kiosque
+│   │   │   └── routes.py         # REST + WebSocket
+│   │   ├── hardware/             # boutons, LED, caméra (+ redressement), imprimante CSN-A2, micro
+│   │   ├── ocr/                  # tesseract | vlm (compatible OpenAI) | mistral_ocr | mock
+│   │   ├── stt/                  # faster-whisper local | mock
 │   │   ├── tutor/
-│   │   │   ├── prompts/
-│   │   │   │   ├── system_tutor.md        # Prompt système du tuteur socratique
-│   │   │   │   ├── evaluate_answer.md     # Évaluation structurée (JSON) d'une réponse
-│   │   │   │   └── generate_exercise.md   # Génération d'exercice imprimable
-│   │   │   ├── llm_client.py     # Client compatible OpenAI (Mistral / Ollama)
-│   │   │   ├── state.py          # Machine à états par item (tentatives, verrou)
-│   │   │   ├── agent.py          # Orchestration : évaluer → décider → formuler
-│   │   │   ├── misconceptions.py # Catalogue et normalisation des étiquettes d'erreurs
-│   │   │   └── curriculum/       # Cours génériques (toutes matières) éditables par le prof
-│   │   │       ├── schema.py     # Notions, prérequis, items, type_reponse, misconceptions
-│   │   │       └── loader.py
-│   │   ├── storage/
-│   │   │   ├── markdown_store.py # Écriture atomique des sessions/items en Markdown
-│   │   │   └── students.py       # Profils pseudonymisés par kiosque
-│   │   └── services/
-│   │       └── session_manager.py # Bascule d'élève, sauvegarde, inactivité
-│   └── tests/
-│       ├── test_state_machine.py
-│       ├── test_printer_encoding.py
-│       ├── test_markdown_store.py
-│       └── test_agent_mocked_llm.py
+│   │   │   ├── prompts/          # system_tutor, evaluate_answer, turn_instructions, generate_exercise
+│   │   │   ├── curriculum/       # schéma des cours, chargement, cours de démonstration
+│   │   │   ├── answers.py        # vérification déterministe + détecteur de fuite
+│   │   │   ├── state.py          # compteur d'erreurs et verrou
+│   │   │   ├── agent.py          # choix des items, évaluation, messages, remédiation
+│   │   │   ├── misconceptions.py # normalisation des étiquettes
+│   │   │   ├── llm_client.py     # client compatible OpenAI (Mistral / Ollama)
+│   │   │   └── demo_llm.py       # LLM de démonstration hors ligne
+│   │   ├── storage/              # Markdown atomique, profils, corpus d'évaluation
+│   │   └── services/             # sessions, captures en attente, imprimante partagée
+│   └── tests/                    # 90 tests (matériel simulé, LLM scripté)
 │
-├── frontend/
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── index.html
+├── frontend/                     # Vue 3 + Vite + TypeScript
 │   └── src/
-│       ├── main.ts
-│       ├── App.vue
-│       ├── api.ts                # Client REST + WebSocket
-│       ├── stores/session.ts     # État (Pinia) : élève actif, conversation
-│       ├── views/
-│       │   ├── HomeView.vue      # « Appuie sur ton bouton »
-│       │   ├── TutorView.vue     # Conversation, saisie, dictée
-│       │   ├── ScanView.vue      # Aperçu caméra, cadrage, résultat OCR à valider
-│       │   └── AdminView.vue     # Diagnostic matériel (code PIN)
-│       └── components/
-│           ├── StudentBadge.vue
-│           ├── ChatBubble.vue
-│           ├── OnScreenKeyboard.vue
-│           ├── AttemptMeter.vue  # Jauge 1-2-3 tentatives
-│           └── MathInput.vue
+│       ├── App.vue · api.ts · store.ts · style.css
+│       ├── views/                # HomeView, TutorView, ScanPanel, DictationPanel, AdminView
+│       └── components/           # OnScreenKeyboard, AttemptMeter, ChatBubble, StudentBadge
 │
 ├── deploy/
-│   ├── install.sh                # Installation complète d'un kiosque (idempotent)
-│   ├── provision_kiosk.sh        # Nom du kiosque, élèves, appairage Syncthing
-│   ├── systemd/
-│   │   ├── aristote-backend.service
-│   │   ├── aristote-kiosk.service          # cage + Chromium
-│   │   ├── aristote-rsync.service          # Alternative à Syncthing
-│   │   └── aristote-rsync.timer
-│   ├── udev/99-aristote-printer.rules      # /dev/aristote-printer stable
-│   ├── syncthing/setup_kiosk.sh
-│   ├── syncthing/setup_teacher.md
-│   └── hub/                      # Optionnel : serveur Ollama de classe
-│       ├── docker-compose.yml
-│       └── README.md
+│   ├── install.sh                # installation complète d'un kiosque (idempotente)
+│   ├── provision_kiosk.sh        # identifiant, élèves, PIN, appairage Syncthing
+│   ├── systemd/                  # backend (durci), interface cage + Chromium, rsync (alternative)
+│   ├── udev/                     # /dev/aristote-printer
+│   ├── syncthing/                # configuration kiosque + guide professeur
+│   └── hub/                      # hub Ollama de classe (mode 100 % local)
 │
-├── eval/                         # Harnais d'évaluation (voir docs/EVALUATION.md)
-│   ├── weights.toml
-│   ├── courses/demo/             # Cours de démonstration multi-matières
-│   ├── generators/               # Misconceptions, scénarios, classe synthétique
-│   ├── simulated_student.py
-│   ├── checks/                   # Vérifications déterministes (réponse, fuite, CER/WER)
-│   ├── judges/                   # Jury multi-LLM + grilles
-│   ├── bench/                    # Délais, endurance
-│   ├── run.py
-│   └── report.py
+├── teacher/obsidian/             # coffre modèle du professeur
+│   ├── Aristote/                 # tableau de bord, correspondance, Kiosques/ (cible Syncthing), Analyses/
+│   ├── prompts/                  # 3 prompts Text Generator
+│   └── templates/                # préparation des données (Templater), rapport hebdomadaire
 │
-└── teacher/
-    └── obsidian/
-        ├── README.md                         # Installation des plugins et du coffre
-        ├── Aristote/
-        │   ├── _Correspondance-eleves.md     # Pseudonyme ↔ nom (ne JAMAIS synchroniser vers les kiosques)
-        │   ├── Tableau-de-bord.md            # Requêtes Dataview
-        │   └── Kiosques/                     # Cible Syncthing (lecture seule)
-        ├── prompts/
-        │   ├── 01-misconceptions-par-notion.md
-        │   ├── 02-clusters-eleves-en-difficulte.md
-        │   └── 03-verification-prerequis.md
-        └── templates/
-            └── Rapport-hebdomadaire.md
+└── eval/                         # harnais d'évaluation (voir docs/EVALUATION.md)
 ```
 
 ## 4. Flux principaux

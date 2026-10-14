@@ -17,6 +17,7 @@ Le module sépare :
 
 from __future__ import annotations
 
+import logging
 import textwrap
 import time
 from dataclasses import dataclass, field
@@ -24,6 +25,8 @@ from datetime import datetime
 from typing import Callable, Literal, Protocol, Union
 
 import numpy as np
+
+log = logging.getLogger(__name__)
 
 # --- Constantes du protocole ---------------------------------------------------------------------
 
@@ -372,8 +375,10 @@ class PreviewPrinter:
         self.raw: list[bytes] = []
 
     def print_ticket(self, ticket: Ticket) -> None:
-        self.printed.append(render_preview(ticket))
+        preview = render_preview(ticket)
+        self.printed.append(preview)
         self.raw.append(render_commands(ticket))
+        log.info("ticket (imprimante simulée) :\n%s", preview)
 
     def has_paper(self) -> bool | None:
         return True
