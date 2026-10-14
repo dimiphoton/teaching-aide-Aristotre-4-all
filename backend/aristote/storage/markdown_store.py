@@ -138,6 +138,7 @@ class Item:
     remediation: str | None = None
     prerequisite: str | None = None
     printed: bool = False
+    item_id: str | None = None   # identifiant de l'item dans le cours
 
     @property
     def errors(self) -> int:
@@ -155,6 +156,13 @@ class Session:
     close_reason: str | None = None
     items: list[Item] = field(default_factory=list)
     path: Path | None = None
+    pending_prerequisite: str | None = None  # notion à travailler après un verrou (non écrit)
+
+    @property
+    def current_item(self) -> Item | None:
+        if self.items and self.items[-1].status is ItemStatus.EN_COURS:
+            return self.items[-1]
+        return None
 
     @property
     def notions(self) -> list[str]:
@@ -229,7 +237,7 @@ def render_item(item: Item) -> str:
     out = [
         f"## Item {item.index} — {item.notion} — {_STATUS_LABEL[item.status]} ({item.errors}/3)",
         "",
-        f"**Question** : {sanitize(item.question)}",
+        f"**Question**{f' (`{item.item_id}`)' if item.item_id else ''} : {sanitize(item.question)}",
         "",
     ]
     out.extend(render_attempt(a) for a in item.attempts)

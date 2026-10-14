@@ -62,3 +62,41 @@ eval_retention_days = 90
 
 [session]
 idle_timeout_s = 600
+
+[llm]
+# Mode UE (par défaut) : Mistral.  Mode 100 % local : base_url = "http://hub.local:11434/v1",
+# model = "qwen2.5:14b-instruct", api_key_env = "".
+base_url = "https://api.mistral.ai/v1"
+model = "mistral-small-latest"
+api_key_env = "MISTRAL_API_KEY"
+temperature = 0.3
+timeout_s = 30
+json_mode = true
+
+[ocr]
+# "mistral_ocr" (API UE), "vlm" (modèle de vision compatible OpenAI : hub Ollama ou Mistral Pixtral),
+# "tesseract" (local, faible sur le manuscrit), "mock".
+engine = "mistral_ocr"
+model = "mistral-ocr-latest"
+api_key_env = "MISTRAL_API_KEY"
+# Pour engine = "vlm" sur le hub : base_url = "http://hub.local:11434/v1", model = "qwen2.5vl:7b", api_key_env = ""
+base_url = "https://api.mistral.ai/v1"
+tesseract_lang = "fra"
+timeout_s = 60
+
+[stt]
+engine = "whisper"      # faster-whisper, local
+model = "base"          # "small" : plus précis, ~3× plus lent sur Pi 5
+language = "fr"
+compute_type = "int8"
+
+[tutor]
+# Cours au format YAML (voir docs/DATA_FORMAT.md). Vide = cours de démonstration intégré.
+# curriculum = "/etc/aristote/cours/maths-5e.yaml"
+offline_demo = false
+
+[admin]
+pin = "0000"            # À CHANGER : protège l'écran de diagnostic
+
+[frontend]
+dist_dir = "/opt/aristote/frontend/dist"

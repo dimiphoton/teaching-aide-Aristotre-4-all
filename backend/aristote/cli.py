@@ -5,6 +5,8 @@
     aristote diag camera -o scan.jpg
     aristote diag buttons           # affiche les appuis pendant 30 s, LED de l'élève actif
     aristote diag mic -s 5 -o test.wav
+    aristote serve                  # lance le kiosque (http://127.0.0.1:8000)
+    aristote eval-export -o corpus.tar.gz
 """
 
 from __future__ import annotations
@@ -12,6 +14,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import logging
 import sys
 import threading
 import time
@@ -137,9 +140,30 @@ def main(argv: list[str] | None = None) -> int:
     mic = diag.add_parser("mic")
     mic.add_argument("-s", "--seconds", type=float, default=5)
     mic.add_argument("-o", "--output", type=Path, default=Path("micro-test.wav"))
+    serve = sub.add_parser("serve", help="lance le serveur du kiosque")
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8000)
+    export = sub.add_parser("eval-export", help="exporte le corpus d'évaluation (option eval_capture)")
+    export.add_argument("-o", "--output", type=Path, default=Path("eval_corpus.tar.gz"))
     args = parser.parse_args(argv)
 
     config = load_config(args.config)
+    if args.command == "serve":
+        import uvicorn
+
+        from .main import create_app
+
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s : %(message)s")
+        uvicorn.run(create_app(config), host=args.host, port=args.port, log_level="info")
+        return 0
+    if args.command == "eval-export":
+        from .storage.eval_corpus import EvalCorpus
+
+        corpus = EvalCorpus(config.storage.eval_corpus_dir, config.kiosk.id, config.storage.eval_retention_days)
+        print("Exporté :", corpus.export(args.output))
+        print("Ce fichier contient des écritures et des voix d'élèves : le transmettre uniquement par un canal "
+              "autorisé par l'établissement, puis le supprimer.")
+        return 0
     if args.command == "config":
         print(json.dumps(config.model_dump(mode="json"), indent=2, ensure_ascii=False))
         return 0

@@ -99,11 +99,58 @@ class SessionConfig(BaseModel):
     idle_timeout_s: int = 600
 
 
+class LlmConfig(BaseModel):
+    """Serveur compatible OpenAI. Mistral par défaut ; Ollama du hub de classe pour le 100 % local."""
+    base_url: str = "https://api.mistral.ai/v1"
+    model: str = "mistral-small-latest"
+    api_key_env: str = "MISTRAL_API_KEY"   # nom de la variable d'environnement (secrets.env), jamais la clé
+    temperature: float = 0.3
+    timeout_s: float = 30.0
+    json_mode: bool = True
+
+
+class OcrConfig(BaseModel):
+    engine: Literal["tesseract", "vlm", "mistral_ocr", "mock"] = "mistral_ocr"
+    base_url: str = "https://api.mistral.ai/v1"   # moteur vlm
+    model: str = "mistral-ocr-latest"
+    api_key_env: str = "MISTRAL_API_KEY"
+    tesseract_lang: str = "fra"
+    timeout_s: float = 60.0
+
+
+class SttConfig(BaseModel):
+    engine: Literal["whisper", "mock"] = "whisper"
+    model: str = "base"
+    language: str = "fr"
+    compute_type: str = "int8"
+
+
+class TutorConfig(BaseModel):
+    # Chemin du cours ; vide = cours de démonstration intégré.
+    curriculum: Path | None = None
+    # Mode démonstration : LLM simulé (aucun appel réseau), pour essayer l'interface.
+    offline_demo: bool = False
+
+
+class AdminConfig(BaseModel):
+    pin: str = "0000"
+
+
+class FrontendConfig(BaseModel):
+    dist_dir: Path = Path("/opt/aristote/frontend/dist")
+
+
 class Config(BaseModel):
     kiosk: KioskConfig = Field(default_factory=KioskConfig)
     hardware: HardwareConfig = Field(default_factory=HardwareConfig)
     storage: StorageConfig = Field(default_factory=StorageConfig)
     session: SessionConfig = Field(default_factory=SessionConfig)
+    llm: LlmConfig = Field(default_factory=LlmConfig)
+    ocr: OcrConfig = Field(default_factory=OcrConfig)
+    stt: SttConfig = Field(default_factory=SttConfig)
+    tutor: TutorConfig = Field(default_factory=TutorConfig)
+    admin: AdminConfig = Field(default_factory=AdminConfig)
+    frontend: FrontendConfig = Field(default_factory=FrontendConfig)
 
     @model_validator(mode="after")
     def _one_button_per_student(self) -> "Config":
@@ -143,4 +190,6 @@ def mock_config(base: Config | None = None) -> Config:
     config.hardware.mode = "mock"
     config.hardware.camera.backend = "mock"
     config.hardware.microphone.backend = "mock"
+    config.ocr.engine = "mock"
+    config.stt.engine = "mock"
     return config
