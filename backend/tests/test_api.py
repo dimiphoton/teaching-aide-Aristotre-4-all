@@ -78,6 +78,9 @@ def test_full_student_flow(client):
     assert len(list(corpus.rglob("*.jpg"))) == 1 and len(list(corpus.rglob("*.wav"))) == 1
     assert not list((client.tmp / "vault").rglob("*.jpg"))
 
+    cours = (client.tmp / "vault/K01/cours.md").read_text()
+    assert "addition-fractions" in cours and "7/12" not in cours  # structure sans les réponses
+
     client.post("/api/session/end")
     session_file = next((client.tmp / "vault/K01/eleves/E02/sessions").glob("*.md")).read_text()
     assert "a_revoir_prof: true" in session_file and "scan, confiance 0.99" in session_file

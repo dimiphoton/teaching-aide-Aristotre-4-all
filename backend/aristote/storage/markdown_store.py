@@ -286,6 +286,11 @@ class MarkdownStore:
         atomic_write(session.path, render_session(session))
         return session.path
 
+    def write_note(self, name: str, meta: dict[str, Any], body: str) -> Path:
+        path = self.root / name
+        atomic_write(path, f"{dump_frontmatter({**meta, 'kiosque': self.kiosk_id})}\n{body}\n")
+        return path
+
     def write_kiosk_status(self, meta: dict[str, Any], body: str = "") -> Path:
         path = self.root / "kiosque.md"
         meta = {"type": "kiosque", "kiosque": self.kiosk_id, **meta}

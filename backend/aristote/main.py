@@ -19,6 +19,7 @@ from .api.context import KioskContext, build_context
 from .api.routes import router, ws_router
 from .config import Config, load_config
 from .hardware.base import ButtonPress
+from .tutor.curriculum import course_summary
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +58,7 @@ def create_app(config: Config | None = None, context: KioskContext | None = None
             "ocr": c.ocr.name, "stt": c.stt.name, "camera": c.hardware.camera is not None,
             "imprimante": c.printer.available, "micro": c.hardware.microphone is not None,
         })
+        c.store.write_note("cours.md", *course_summary(c.curriculum))
         task = asyncio.create_task(_housekeeping(c))
         log.info("kiosque %s prêt (%s)", c.config.kiosk.id, c.llm_mode)
         try:

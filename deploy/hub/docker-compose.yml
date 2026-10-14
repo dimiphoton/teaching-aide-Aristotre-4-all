@@ -1,0 +1,30 @@
+# Hub IA de classe (optionnel) : LLM + OCR manuscrit 100 % locaux pour 7-8 kiosques.
+# Machine : PC avec GPU NVIDIA 12 Go (pilote + nvidia-container-toolkit), ou Mac (Ollama natif, sans Docker).
+#
+#   docker compose up -d
+#   docker compose exec ollama ollama pull qwen2.5:14b-instruct
+#   docker compose exec ollama ollama pull qwen2.5vl:7b
+#
+# Kiosques ([llm] et [ocr] de /etc/aristote/config.toml) :
+#   base_url = "http://hub.local:11434/v1"   api_key_env = ""
+services:
+  ollama:
+    image: ollama/ollama:0.5.7
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h"        # garde les modèles en mémoire pendant la journée de cours
+      OLLAMA_NUM_PARALLEL: "4"        # plusieurs kiosques en même temps
+      OLLAMA_MAX_LOADED_MODELS: "2"   # LLM + modèle de vision
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+volumes:
+  ollama:
