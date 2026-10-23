@@ -1,0 +1,16 @@
+# Alternative à Syncthing : pousse le dossier du kiosque vers le partage du professeur par SSH.
+# 1. sudo -u aristote ssh-keygen -t ed25519 -N "" -f /home/aristote/.ssh/aristote_sync
+# 2. Ajouter la clé publique dans ~/.ssh/authorized_keys du compte de destination.
+# 3. Renseigner /etc/aristote/rsync.env :  RSYNC_DEST=prof@pc-prof:/chemin/coffre/Aristote/Kiosques/K01/
+#                                           KIOSK_ID=K01
+# 4. sudo systemctl enable --now aristote-rsync.timer
+[Unit]
+Description=Aristote 4 All - envoi des fichiers au professeur (rsync)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=aristote
+EnvironmentFile=/etc/aristote/rsync.env
+ExecStart=/usr/bin/rsync -a --partial --timeout=60 -e "ssh -i /home/aristote/.ssh/aristote_sync -o BatchMode=yes" \
+  /var/lib/aristote/vault/${KIOSK_ID}/ ${RSYNC_DEST}

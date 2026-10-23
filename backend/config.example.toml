@@ -1,0 +1,102 @@
+# Configuration d'un kiosque Aristote 4 All.
+# Copier dans /etc/aristote/config.toml (ou définir ARISTOTE_CONFIG=chemin).
+# Les secrets (clés d'API) vont dans /etc/aristote/secrets.env, jamais ici.
+
+[kiosk]
+id = "K01"
+# Pseudonymes des 4 élèves, dans l'ordre des boutons 1 à 4.
+# La correspondance pseudonyme ↔ nom reste UNIQUEMENT dans l'Obsidian du professeur.
+students = ["E01", "E02", "E03", "E04"]
+
+[hardware]
+# "real" : matériel physique ; "mock" : simulation (développement sur PC).
+mode = "real"
+
+[hardware.buttons]
+# "gpio" (Raspberry Pi) ou "keyboard" (mini-PC : boutons sur un clavier USB HID, touches relayées par l'interface).
+backend = "gpio"
+student_pins = [5, 6, 13, 19]   # numérotation BCM
+scan_pin = 26
+long_press_s = 3.0
+bounce_s = 0.05
+
+[hardware.leds]
+enabled = true
+student_pins = [12, 16, 20, 21]
+scan_pin = 25
+
+[hardware.camera]
+# "picamera2" (Camera Module 3), "opencv" (webcam USB) ou "mock".
+backend = "picamera2"
+width = 4608
+height = 2592
+opencv_device = 0
+# Redressement automatique de la page (détection des bords).
+deskew = true
+
+[hardware.printer]
+enabled = true
+port = "/dev/aristote-printer"   # lien stable créé par deploy/udev/99-aristote-printer.rules
+baudrate = 19200                 # 9600 sur certains firmwares : voir le ticket de test (bouton de l'imprimante au démarrage)
+heat_dots = 11
+heat_time = 120
+heat_interval = 40
+density = 10
+break_time = 2
+# Temps estimés pour ne pas saturer la mémoire tampon de l'imprimante (pas de contrôle de flux).
+dot_print_time_s = 0.0033
+dot_feed_time_s = 0.0021
+
+[hardware.microphone]
+backend = "sounddevice"          # ou "mock"
+device = ""                      # vide = périphérique par défaut ; sinon nom partiel, ex. "USB"
+samplerate = 16000
+max_seconds = 60
+
+[storage]
+vault_dir = "/var/lib/aristote/vault"          # dossier partagé par Syncthing (envoi seul)
+eval_corpus_dir = "/var/lib/aristote/eval_corpus"  # jamais synchronisé
+keep_scans = false
+eval_capture = false
+eval_retention_days = 90
+
+[session]
+idle_timeout_s = 600
+
+[llm]
+# Mode UE (par défaut) : Mistral.  Mode 100 % local : base_url = "http://hub.local:11434/v1",
+# model = "qwen2.5:14b-instruct", api_key_env = "".
+base_url = "https://api.mistral.ai/v1"
+model = "mistral-small-latest"
+api_key_env = "MISTRAL_API_KEY"
+temperature = 0.3
+timeout_s = 30
+json_mode = true
+
+[ocr]
+# "mistral_ocr" (API UE), "vlm" (modèle de vision compatible OpenAI : hub Ollama ou Mistral Pixtral),
+# "tesseract" (local, faible sur le manuscrit), "mock".
+engine = "mistral_ocr"
+model = "mistral-ocr-latest"
+api_key_env = "MISTRAL_API_KEY"
+# Pour engine = "vlm" sur le hub : base_url = "http://hub.local:11434/v1", model = "qwen2.5vl:7b", api_key_env = ""
+base_url = "https://api.mistral.ai/v1"
+tesseract_lang = "fra"
+timeout_s = 60
+
+[stt]
+engine = "whisper"      # faster-whisper, local
+model = "base"          # "small" : plus précis, ~3× plus lent sur Pi 5
+language = "fr"
+compute_type = "int8"
+
+[tutor]
+# Cours au format YAML (voir docs/DATA_FORMAT.md). Vide = cours de démonstration intégré.
+# curriculum = "/etc/aristote/cours/maths-5e.yaml"
+offline_demo = false
+
+[admin]
+pin = "0000"            # À CHANGER : protège l'écran de diagnostic
+
+[frontend]
+dist_dir = "/opt/aristote/frontend/dist"

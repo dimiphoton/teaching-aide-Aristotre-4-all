@@ -1,0 +1,32 @@
+# Configuration évaluée par `make eval CONFIG=eval/configs/exemple.toml`.
+nom = "mistral-small + prompts v1"
+cours = "backend/aristote/tutor/curriculum/demo.yaml"
+confidentialite = "api_ue"          # clé de [confidentialite] dans weights.toml
+repetitions = 2                      # chaque scénario est joué N fois (variabilité du LLM)
+
+[tuteur]                             # modèle évalué (compatible OpenAI)
+base_url = "https://api.mistral.ai/v1"
+model = "mistral-small-latest"
+api_key_env = "MISTRAL_API_KEY"
+
+[eleve_simule]                       # joue l'élève ; idéalement un autre modèle que le tuteur
+base_url = "https://api.mistral.ai/v1"
+model = "mistral-large-latest"
+api_key_env = "MISTRAL_API_KEY"
+
+# Jury : au moins deux modèles de familles différentes, jamais le modèle évalué.
+[[juges]]
+base_url = "https://api.mistral.ai/v1"
+model = "mistral-large-latest"
+api_key_env = "MISTRAL_API_KEY"
+
+[[juges]]
+base_url = "http://hub.local:11434/v1"
+model = "qwen2.5:14b-instruct"
+api_key_env = ""
+
+# Mesures externes facultatives (fichiers JSON produits par eval/ocr_eval.py et eval/bench/latency.py)
+[mesures]
+lecture = ""
+delais = ""
+cout_euros_par_eleve_an = 0

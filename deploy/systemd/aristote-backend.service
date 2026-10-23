@@ -1,0 +1,25 @@
+[Unit]
+Description=Aristote 4 All - serveur du kiosque
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aristote
+Group=aristote
+EnvironmentFile=-/etc/aristote/secrets.env
+Environment=ARISTOTE_CONFIG=/etc/aristote/config.toml
+# Modèle de dictée déjà téléchargé à l'installation : aucun accès réseau pour lui.
+Environment=HF_HUB_OFFLINE=1
+ExecStart=/opt/aristote/venv/bin/aristote serve --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+# Durcissement
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/aristote /home/aristote/.cache
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

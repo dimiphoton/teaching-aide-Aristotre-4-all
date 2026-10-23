@@ -1,0 +1,139 @@
+# Cours de démonstration multi-matières (niveau collège).
+# Il sert de modèle pour écrire un cours et de jeu de test : une version du produit doit passer les
+# critères éliminatoires sur ce cours (voir docs/EVALUATION.md § 5.2).
+#
+# Types de réponse : nombre | expression | choix | mots_cles | ouverte
+
+id: demo
+titre: Démonstration multi-matières
+matiere: pluridisciplinaire
+niveau: 5e
+langue: fr
+consignes_tuteur: >
+  Ce cours de démonstration mélange plusieurs matières : adapte ton vocabulaire à la matière de chaque notion.
+
+notions:
+  # --- Mathématiques ---------------------------------------------------------------------------
+  - id: fractions-equivalentes
+    titre: Fractions équivalentes
+    prerequis: []
+    misconceptions:
+      - id: multiplie-un-seul-terme
+        description: Multiplie le numérateur sans multiplier le dénominateur (ou l'inverse).
+      - id: ajoute-au-lieu-de-multiplier
+        description: Ajoute le même nombre en haut et en bas au lieu de multiplier.
+    items:
+      - id: fe-1
+        question: "Complète : 1/2 = ?/4"
+        type_reponse: nombre
+        reponse: "2"
+        difficulte: 1
+      - id: fe-2
+        question: "Complète : 3/5 = ?/20"
+        type_reponse: nombre
+        reponse: "12"
+        difficulte: 2
+
+  - id: addition-fractions
+    titre: Addition de fractions
+    prerequis: [fractions-equivalentes]
+    misconceptions:
+      - id: additionne-numerateurs-et-denominateurs
+        description: Additionne les numérateurs entre eux et les dénominateurs entre eux (1/3 + 1/4 = 2/7).
+      - id: oublie-denominateur-commun
+        description: Additionne les numérateurs sans mettre au même dénominateur.
+    items:
+      - id: af-1
+        question: "Calcule 1/3 + 1/4."
+        type_reponse: nombre
+        reponse: "7/12"
+        variantes: ["14/24"]
+        indices:
+          - "Quelle fraction de pizza obtiens-tu avec un tiers puis un quart d'une même pizza ?"
+        difficulte: 2
+      - id: af-2
+        question: "Calcule 2/5 + 1/10."
+        type_reponse: nombre
+        reponse: "1/2"
+        variantes: ["5/10"]
+        difficulte: 1
+
+  - id: developpement
+    titre: Développer une expression
+    prerequis: []
+    misconceptions:
+      - id: distribue-sur-un-seul-terme
+        description: Ne multiplie que le premier terme de la parenthèse (3(x + 2) = 3x + 2).
+    items:
+      - id: dev-1
+        question: "Développe 3(x + 2)."
+        type_reponse: expression
+        reponse: "3x + 6"
+        difficulte: 1
+
+  # --- Français ----------------------------------------------------------------------------------
+  - id: accord-participe-etre
+    titre: Accord du participe passé avec être
+    prerequis: []
+    misconceptions:
+      - id: accorde-avec-le-cod
+        description: Cherche un COD au lieu d'accorder avec le sujet.
+      - id: n-accorde-jamais
+        description: Pense que le participe passé ne s'accorde jamais.
+    items:
+      - id: pp-1
+        question: "Choisis la bonne orthographe : « Les filles sont ___ au cinéma. »"
+        type_reponse: choix
+        choix: ["allé", "allée", "allés", "allées"]
+        reponse: "D"
+        difficulte: 1
+
+  # --- Histoire ----------------------------------------------------------------------------------
+  - id: revolution-francaise
+    titre: Les débuts de la Révolution française
+    prerequis: []
+    misconceptions:
+      - id: confond-avec-1789-1792
+        description: Confond la prise de la Bastille avec la proclamation de la République.
+    items:
+      - id: rf-1
+        question: "Quel événement du 14 juillet 1789 est devenu le symbole du début de la Révolution ?"
+        type_reponse: mots_cles
+        reponse: "La prise de la Bastille."
+        mots_cles: ["bastille"]
+        difficulte: 1
+
+  # --- Sciences ----------------------------------------------------------------------------------
+  - id: photosynthese
+    titre: La photosynthèse
+    prerequis: []
+    misconceptions:
+      - id: plante-se-nourrit-par-le-sol
+        description: Pense que la plante tire toute sa matière du sol.
+      - id: confond-respiration-photosynthese
+        description: Confond respiration et photosynthèse.
+    items:
+      - id: ph-1
+        question: "Explique pourquoi une plante placée dans le noir finit par dépérir."
+        type_reponse: ouverte
+        reponse: "Sans lumière la plante ne peut pas réaliser la photosynthèse donc elle ne fabrique plus sa matière organique."
+        criteres:
+          - "Mentionne que la lumière est nécessaire"
+          - "Relie la lumière à la fabrication de matière ou de nourriture par la plante"
+        mots_cles: ["photosynthese|photo-synthese"]
+        difficulte: 2
+
+  # --- Langue vivante ----------------------------------------------------------------------------
+  - id: anglais-preterit
+    titre: Le prétérit des verbes irréguliers (anglais)
+    prerequis: []
+    misconceptions:
+      - id: ajoute-ed-aux-irreguliers
+        description: Ajoute -ed à un verbe irrégulier (goed).
+    items:
+      - id: en-1
+        question: "Quel est le prétérit du verbe « to go » ?"
+        type_reponse: mots_cles
+        reponse: "went"
+        mots_cles: ["went"]
+        difficulte: 1
